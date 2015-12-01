@@ -40,7 +40,7 @@ public class RandomDatabase {
         FileInputStream database;
         //Here we want to access the file...
         try {
-        	database = new FileInputStream("Files/rockyou.txt");
+        	database = new FileInputStream("Files/rockyou.clean.txt");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -54,7 +54,7 @@ public class RandomDatabase {
         
         //////////////////Get an array of random lines from 1-sizeOfDatabase////////////////
         Random rand = new Random();
-        int max = 14344391; //This is the number of passwords in the .txt file
+        int max = 14338588; //This is the number of passwords in the .txt file
         int min = 0; //This is the first line that has a password...
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive
