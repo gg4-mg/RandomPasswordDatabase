@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class ngrams {
 
@@ -28,10 +30,12 @@ public class ngrams {
 	 * @param args
 	 * @return four databases containing uni-grams, di-grams, tri-grams and quad-grams
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		//We first write code that tests whether we correctly create four tables
 		//1)Here we create a table of uni-grams based on the passwords as input...
 		double numberOfLines = 0;
+		double lineSize = 0;
         FileInputStream database;
         //Here we want to access the file...
         try {
@@ -392,90 +396,131 @@ public class ngrams {
         /////////////////////////////Here is our database Creation method//////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-		String startingState = "¢¢¢";
-		String finalString = "";
-		//The count will store the size of the set to decide which table to search from
-		int count = 0;
-		while(true){
-			//The following produces a random number between 0 & 1.
-			double random = Math.random();
-			System.out.println(random);
-			//System.out.println("The random is: " + random);
-			String set = "";
-			String transition = "";
-			count = 0;
-			//Now we need to find i through binary search...
-			for(char c : startingState.toCharArray()) {
-				if (c != '¢'){
-					//This will create the set that we have to search for...
-					count += 1;
-					if(count > 3){
-						set = set.substring(0) + Character.toString(c);
-						assert(set.length()<=3 && set.length()!= 0);
+        //We will store all these vales in a new map for what we do below.
+        HashMap<String, Double> newDatabase = new HashMap<String, Double>();
+        LinkedHashMap<String,String> Database = new LinkedHashMap<String,String>();
+		Random randomGenerator = new java.util.Random(System.currentTimeMillis());
+		lineSize = numberOfLines;
+		while (numberOfLines>=0){
+			String startingState = "¢¢¢";
+			String finalString = "";
+			Double stringProbability = 1.0;
+			//The count will store the size of the set to decide which table to search from
+			int count = 0;
+			while(true){
+				//The following produces a random number between 0 & 1.
+				Double random = randomGenerator.nextDouble();
+				Double tempProbability = 1.0;
+				//System.out.println(random);
+				//System.out.println("The random is: " + random);
+				String set = "";
+				String transition = "";
+				count = 0;
+				//Now we need to find i through binary search...
+				for(char c : startingState.toCharArray()) {
+					if (c != '¢'){
+						//This will create the set that we have to search for...
+						count += 1;
+						if(count > 3){
+							set = set.substring(0) + Character.toString(c);
+							assert(set.length()<=3 && set.length()!= 0);
+						}
+						else
+							set = set + Character.toString(c);
 					}
-					else
-						set = set + Character.toString(c);
+				}
+				//Now we have the set based on the startingState string...
+				if (count == 0){
+			        for (Map.Entry<String, Double> letterEntry : uniDB.entrySet()) {
+			        	//I first need to iterate through the whole set and get the count of each character!
+			        	if (letterEntry.getKey() == "¢"){
+			        		transition = letterEntry.getKey();
+			        		break;
+			        	}else if (letterEntry.getValue() > random){
+			        		transition = letterEntry.getKey();
+			        		break;
+			        	}
+			        }
+				} else if (count == 1){
+			        for (Map.Entry<String, Double> entry : diDB.get(set).entrySet()) {
+			        	if (entry.getKey() == "¢"){
+			        		transition = entry.getKey();
+			        		break;
+			        	} else if (entry.getValue() > random){
+			        		transition = entry.getKey();
+			        		break;
+			        	}
+			        }
+				} else if (count == 2){
+			        for (Map.Entry<String, Double> entry : triDB.get(set).entrySet()) {
+			        	if (entry.getKey() == "¢"){
+			        		transition = entry.getKey();
+			        		break;
+			        	} else if (entry.getValue() > random){
+			        		transition = entry.getKey();
+			        		break;
+			        	}
+			        }
+				} else{
+			        for (Map.Entry<String, Double> entry : quadDB.get(set).entrySet()) {
+			        	if (entry.getKey() == "¢"){
+			        		transition = entry.getKey();
+			        		break;
+			        	} else if (entry.getValue() > random){
+			        		transition = entry.getKey();
+			        		break;
+			        	}
+			        }
+				}
+				//System.out.println("The transition is: " + transition);
+				if (transition == "¢" || transition == "")
+					break;
+				else{
+					//Here we update the probability
+					if (count == 0){
+						tempProbability = uniGram.get(transition).getPercentage();
+					} else if (count == 1){
+						tempProbability = diGram.get(set).get(transition).getPercentage();
+					} else if (count == 2){
+						tempProbability = triGram.get(set).get(transition).getPercentage();
+					} else if (count == 3){
+						tempProbability = quadGram.get(set).get(transition).getPercentage();
+					} else {
+						assert(false);
+					}
+					finalString = finalString + transition;
+					startingState = startingState.substring(1) + transition;
+					stringProbability *= tempProbability;
 				}
 			}
-			//Now we have the set based on the startingState string...
-			if (count == 0){
-				System.out.println("In unigrams");
-		        for (Map.Entry<String, Double> letterEntry : uniDB.entrySet()) {
-		        	//I first need to iterate through the whole set and get the count of each character!
-		        	if (letterEntry.getKey() == "¢"){
-		        		transition = letterEntry.getKey();
-		        		break;
-		        	}else if (letterEntry.getValue() > random){
-		        		transition = letterEntry.getKey();
-		        		break;
-		        	}
-		        }
-			} else if (count == 1){
-				System.out.println("In digrams");
-		        for (Map.Entry<String, Double> entry : diDB.get(set).entrySet()) {
-		        	if (entry.getKey() == "¢"){
-		        		transition = entry.getKey();
-		        		break;
-		        	} else if (entry.getValue() > random){
-		        		transition = entry.getKey();
-		        		break;
-		        	}
-		        }
-			} else if (count == 2){
-				System.out.println("In trigrams");
-		        for (Map.Entry<String, Double> entry : triDB.get(set).entrySet()) {
-		        	if (entry.getKey() == "¢"){
-		        		transition = entry.getKey();
-		        		break;
-		        	} else if (entry.getValue() > random){
-		        		transition = entry.getKey();
-		        		break;
-		        	}
-		        }
-			} else{
-				System.out.println("In quadgrams");
-		        for (Map.Entry<String, Double> entry : quadDB.get(set).entrySet()) {
-		        	if (entry.getKey() == "¢"){
-		        		transition = entry.getKey();
-		        		break;
-		        	} else if (entry.getValue() > random){
-		        		transition = entry.getKey();
-		        		break;
-		        	}
-		        }
-			}
-			System.out.println("The transition is: " + transition);
-			if (transition == "¢" || transition == "")
-				break;
-			else{
-				finalString = finalString + transition;
-				startingState = startingState.substring(1) + transition;
-				System.out.println(startingState);
-			}
+			System.out.println("The final string is: " + finalString);
+			System.out.println("The probability for the string is: " + stringProbability);
+			//Here we add the string, the probability, and the associated accumulative probability
+			newDatabase.put(finalString, stringProbability);
+			finalString = "";
+			numberOfLines--;
 		}
-		System.out.println("The final string is: " + finalString);
-		System.out.println("The number of lines created in the new database (based on the " +
-							"size of the random password database) is: " + numberOfLines);
+		Double cumulativeProbability = 0.0;
+		HashMap<String, Double> finalDatabase = sortByValues(newDatabase);
+        Iterator<Map.Entry<String, Double>> addCumulProb = finalDatabase.entrySet().iterator();
+        while (addCumulProb.hasNext()) {
+            Map.Entry<String, Double> entry = addCumulProb.next();
+            cumulativeProbability += 1/(lineSize*entry.getValue());
+        	Database.put(entry.getKey(), entry.getValue() + " " + cumulativeProbability);
+        }
+        //Now the Database contains the right string and probability!!! WOOOHOOO
+        //This is our last print statement to print out the database!!!
+        try {
+	        BufferedWriter writer = new BufferedWriter(new FileWriter("Files/finalDatabase.txt", true));
+	        for (Map.Entry<String, String> letterEntry : Database.entrySet()) {
+	            String str = letterEntry.getKey() + " " + letterEntry.getValue();
+	            writer.write(str);
+	            writer.newLine();
+	        }
+	        writer.close();
+        } catch (Exception e){
+        	System.out.println("Exception: we cannot write to the file.");
+        }
 	}
 	
 	/**
