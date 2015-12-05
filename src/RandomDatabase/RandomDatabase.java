@@ -54,7 +54,7 @@ public class RandomDatabase {
         
         //////////////////Get an array of random lines from 1-sizeOfDatabase////////////////
         Random rand = new Random();
-        int max = 14338588; //This is the number of passwords in the .txt file
+        int max = 14330242; //This is the number of passwords in the .txt file after cleaning!
         int min = 0; //This is the first line that has a password...
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive
