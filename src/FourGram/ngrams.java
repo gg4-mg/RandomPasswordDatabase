@@ -401,7 +401,8 @@ public class ngrams {
         LinkedHashMap<String,String> Database = new LinkedHashMap<String,String>();
 		Random randomGenerator = new java.util.Random(System.currentTimeMillis());
 		lineSize = numberOfLines;
-		while (numberOfLines>=0){
+		while (newDatabase.size() <= lineSize){
+			System.out.println("                                                     " + newDatabase.size());
 			String startingState = "¢¢¢";
 			String finalString = "";
 			Double stringProbability = 1.0;
@@ -514,6 +515,20 @@ public class ngrams {
 	        BufferedWriter writer = new BufferedWriter(new FileWriter("Files/finalDatabase.txt", true));
 	        for (Map.Entry<String, String> letterEntry : Database.entrySet()) {
 	            String str = letterEntry.getKey() + " " + letterEntry.getValue();
+	            writer.write(str);
+	            writer.newLine();
+	        }
+	        writer.close();
+        } catch (Exception e){
+        	System.out.println("Exception: we cannot write to the file.");
+        }
+        
+        //This prints another database for the iphone application, because it doesn't require the 
+        //actual passwords, only the probability.
+        try {
+	        BufferedWriter writer = new BufferedWriter(new FileWriter("Files/finalDatabaseNoPasswords.txt", true));
+	        for (Map.Entry<String, String> letterEntry : Database.entrySet()) {
+	            String str = letterEntry.getValue();
 	            writer.write(str);
 	            writer.newLine();
 	        }
